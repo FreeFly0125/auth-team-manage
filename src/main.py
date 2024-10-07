@@ -47,9 +47,9 @@ def handle_500(error):
 @app.before_request
 def handle_authentication():
     """Handles authentication for every non-public API request"""
-    if request.endpoint is None or getattr(app.view_functions[request.endpoint], "is_public", False):
-        return
-    else:
+    if request.endpoint is None:
+        return util.response(status_code=404, error_code=1002, error_message="No such endpoint")
+    if not getattr(app.view_functions[request.endpoint], "is_public", False):
         access_limit = getattr(app.view_functions[request.endpoint], "access_limit", None)
         auth.authenticate(access_limit)
 

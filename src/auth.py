@@ -53,7 +53,8 @@ def authenticate(access_limit):
     else:
         if "Authorization" in request.headers:
             auth_header = request.headers["Authorization"].split(" ")
-            if len(auth_header) == 2 and auth_header[0].upper() == "BATOKEN":
+            if len(auth_header) == 2 and auth_header[0].upper() == "BEARER":
+                token = auth_header[1]
                 redis = RedisAdapter("sessions")
                 session = redis.get(token)
                 if session is not None:

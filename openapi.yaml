@@ -21,6 +21,7 @@ info:
     | 403 | 1105 | The access to this function is not allowed for the logged in user |
     | 403 | 1106 | The provided authorization header is not valid |
     | 404 | 1001 | The ressource was not found |
+    | 404 | 1002 | No such endpoint |
     | 405 | 1004 | The HTTP method is not allowed on this route |
 
   version: '1'
