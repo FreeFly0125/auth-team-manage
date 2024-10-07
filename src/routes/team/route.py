@@ -1,4 +1,4 @@
-from flask import Blueprint, g
+from flask import Blueprint, g, request
 from model.Team import Team, TeamMember
 from util import response, validate
 from controller import user as user_controller
@@ -7,6 +7,26 @@ from error import APIException
 
 
 team = Blueprint("team", __name__)
+
+@team.route("/info", methods=["Get"])
+def get_team_info():
+    team_id = request.args.get('team_id')
+
+    if team_id:
+        try:
+            t = team_controller.get_team_with_id(team_id)
+        except Team.DoesNotExist:
+            raise TeamNotExistError()
+        print (t.members[0]["user_id"])
+        print (str(g.session["userID"]))
+        if g.session["userRole"] != "appadmin" and not any(member["user_id"] == str(g.session["userID"]) for member in t.members):
+            raise AccessDeniedError()
+
+        t = team_controller.get_team_with_id(team_id)
+        return response(payload=t)
+    else:
+        teams = team_controller.get_teams_for_user(str(g.session["userID"]))
+        return response(payload=teams)
 
 
 @team.route("/register", methods=["POST"])
@@ -60,3 +80,11 @@ def _check_team_available(name):
 class TeamNameInvalidError(APIException):
     def __init__(self):
         super(TeamNameInvalidError, self).__init__(status_code=409, error_code=1204, message="The team name is already registered in the system.")
+
+class TeamNotExistError(APIException):
+    def __init__(self):
+        super(TeamNotExistError, self).__init__(status_code=400, error_code=1205, message="The team is not found.")
+
+class AccessDeniedError(APIException):
+    def __init__(self):
+        super(AccessDeniedError, self).__init__(status_code=403, error_code=1105, message="The access to this function is not allowed for the logged in user")

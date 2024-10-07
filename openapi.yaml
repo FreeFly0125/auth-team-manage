@@ -15,6 +15,7 @@ info:
     | 400 | 1005 | Bad parameter |
     | 400 | 1006 | Invalid header |
     | 400 | 1201 | Password must be at least 5 characters in length |
+    | 400 | 1205 | The team is not found |
     | 401 | 1101 | Authorization header is missing |
     | 403 | 1102 | The session has expired |
     | 403 | 1103 | Invalid session token |
