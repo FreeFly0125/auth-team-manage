@@ -1,0 +1,18 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title" : "Team registeration",
+    "description" : "Create a new team",
+    "type" : "object",
+    "properties" : {
+        "teamID" : {
+            "type": "string",
+            "minLength": 1
+        },
+        "userID" : {
+            "type": "string",
+            "minLength": 1
+        }
+    },
+    "additionalProperties" : false,
+    "required" : ["teamID", "userID"]
+}

@@ -25,9 +25,11 @@ info:
     | 403 | 1203 | Userame and password do not match any account |
     | 404 | 1001 | The ressource was not found |
     | 404 | 1007 | No such endpoint |
+    | 404 | 1207 | The user is not found within the team |
     | 405 | 1004 | The HTTP method is not allowed on this route |
     | 409 | 1202 | The e-mail is already registered in the system |
     | 409 | 1204 | The team name is already registered in the system |
+    | 409 | 1206 | The user is already existing within the team |
 
   version: '1'
 

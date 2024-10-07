@@ -74,6 +74,35 @@ def delete_team():
     return response(success=True)
 
 
+@team.route("/members", methods=["POST"])
+@validate("modify_members")
+def add_team_member():
+    if team_controller.is_user_team_member(g.payload["teamID"], g.payload["userID"]):
+        raise UserExistInTeamError()
+    
+    u = user_controller.get_user_by_id(id=g.payload["userID"])
+    m = TeamMember()
+    m.user_id = g.payload["userID"]
+    m.first_name = u.first_name
+    m.last_name = u.last_name
+    m.mail = u.mail
+    m.role = u.role
+
+    t = team_controller.get_team_with_id(g.payload["teamID"])
+    t.members.append(m)
+    t.save()
+    return response(success=True)
+
+@team.route("/members", methods=["DELETE"])
+@validate("modify_members")
+def delete_team_member():
+    if not team_controller.is_user_team_member(g.payload["teamID"], g.payload["userID"]):
+        raise UserNotExistError()
+    
+    team_controller.remove_user_from_team(g.payload["userID"])
+    return response(success=True)
+
+
 def _check_team_available(name):
     return (len(name) > 4) and (Team.objects(name=name).count() == 0)
 
@@ -88,3 +117,11 @@ class TeamNotExistError(APIException):
 class AccessDeniedError(APIException):
     def __init__(self):
         super(AccessDeniedError, self).__init__(status_code=403, error_code=1105, message="The access to this function is not allowed for the logged in user")
+
+class UserExistInTeamError(APIException):
+    def __init__(self):
+        super(UserExistInTeamError, self).__init__(status_code=409, error_code=1206, message="The user is already existing within the team.")
+
+class UserNotExistError(APIException):
+    def __init__(self):
+        super(UserNotExistError, self).__init__(status_code=404, error_code=1207, message="The user is not found within the team.")
