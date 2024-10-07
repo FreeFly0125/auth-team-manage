@@ -30,6 +30,7 @@ info:
     | 409 | 1202 | The e-mail is already registered in the system |
     | 409 | 1204 | The team name is already registered in the system |
     | 409 | 1206 | The user is already existing within the team |
+    | 409 | 1208 | The user is already set as the role |
 
   version: '1'
 
