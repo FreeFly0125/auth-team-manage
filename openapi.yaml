@@ -1,0 +1,428 @@
+openapi: 3.0.0
+info:
+  title: BlueAcademy API
+  description: |
+    *Revolutionising parking with your mobile device*
+
+    ## Default Responses
+    Every route can, in addition to the defined responses for the specific route, return one of the default responses defined here.
+    Responses that return with an HTTP status code other than 200 will additionally contain the `X-Bluquist-ErrorCode` header set to the corresponsing Bluquist error code.
+
+    | Response Code | Bluquist Error | Description |
+    | ------------- | ----------- | ------------- |
+    | 400 | 1002 | JSON body is missing |
+    | 400 | 1003 | JSON body is malformed |
+    | 400 | 1005 | Bad parameter |
+    | 400 | 1006 | Invalid header |
+    | 401 | 1101 | Authorization header is missing |
+    | 403 | 1102 | The session has expired |
+    | 403 | 1103 | Invalid session token |
+    | 403 | 1104 | Client origin violation |
+    | 403 | 1105 | The access to this function is not allowed for the logged in user |
+    | 403 | 1106 | The provided authorization header is not valid |
+    | 404 | 1001 | The ressource was not found |
+    | 405 | 1004 | The HTTP method is not allowed on this route |
+
+  version: '1'
+
+servers:
+  - url: https://api.bluquist.com/bluquist/v1
+
+security:
+- bluquistAuth: []
+
+paths:
+  # User routes
+  /user/info:
+    get:
+      description: Get user information for currently logged in user
+      
+      responses:
+        200:
+          description: User information is returned
+          content:
+            application/json:
+              schema:
+                $ref : "#/components/schemas/respUserInfo"
+  
+  /user/login:
+    post:
+      description: Route is used to authenticate a user with the API service and to obtain a session token.
+
+      security: []
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+                $ref : "#/components/schemas/reqLogin"
+
+      responses:
+        200:
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref : "#/components/schemas/respLogin"
+        403:
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref : "#/components/schemas/errorResponse"
+          x-Bluquist-ErrorCode: 1203
+              
+  /user/register:
+    post:
+      description: Route creates a new Bluquist user.
+      
+      security: []
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+                $ref : "#/components/schemas/reqRegister"
+      
+      responses:
+        200:
+          description: User successfuly created
+          content:
+            application/json:
+              schema:
+                $ref : "#/components/schemas/successResponse"
+        400:
+          description: Invalid password format
+          content:
+            application/json:
+              schema:
+                $ref : "#/components/schemas/errorResponse"
+          x-Bluquist-ErrorCode: 1201
+        409:
+          description: E-Mail already registered
+          content:
+            application/json:
+              schema:
+                $ref : "#/components/schemas/errorResponse"
+          x-Bluquist-ErrorCode: 1202
+              
+  /user/update:
+    post:
+      description: Update personal data for user.
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+                $ref : "#/components/schemas/reqUserUpdate"
+
+      responses:
+        200:
+          description: User data successfully updated
+          content:
+            application/json:
+              schema:
+                $ref : "#/components/schemas/successResponse"
+        400:
+          description: Invalid password format
+          content:
+            application/json:
+              schema:
+                $ref : "#/components/schemas/errorResponse"
+          x-Bluquist-ErrorCode: 1201
+
+  # Static routes
+  /static/info:
+    get:
+      description: Get static information from the API.
+
+      responses:
+        200:
+          description: Static information is returned
+          content:
+            application/json:
+              schema:
+                $ref : "#/components/schemas/respStatic"
+            
+  /static/ping:
+    get:
+      description: Get a blank response to check the backend health status
+      security: []
+      
+      responses:
+        204:
+          description: The backend endpoint is reachable
+
+
+components:
+  securitySchemes:
+    bluquistAuth:
+      type: apiKey
+      description: Authentication with access token
+      name: Authorization
+      in: header
+
+  schemas:
+    respUserInfo: {
+        "x-$schema": "http://json-schema.org/draft-04/schema#",
+        "title" : "Bluquist user info response",
+        "description" : "Bluquist user info response",
+        "type" : "object",
+        "properties" : {
+            "firstName" : {
+                "type" : "string",
+                "minLength" : 1
+            },
+            "lastName" : {
+                "type" : "string",
+                "minLength" : 1
+            },
+            "mail" : {
+                "type" : "string",
+                "format" : "email"
+            },
+            "address" : {
+                "type" : "object",
+                "properties" : {
+                    "country" : {
+                        "type" : "string",
+                        "minLength" : 1
+                    },
+                    "state" : {
+                        "type" : "string",
+                        "minLength" : 1
+                    },
+                    "street" : {
+                        "type" : "string",
+                        "minLength" : 1
+                    },
+                    "streetNumber" : {
+                        "type" : "string",
+                        "minLength" : 1
+                    },
+                    "city" : {
+                        "type" : "string",
+                        "minLength" : 1
+                    },
+                    "postalCode" : {
+                        "type" : "string",
+                        "minLength" : 1
+                    }
+                },
+                "additionalProperties" : false,
+                "required" : ["country", "street", "streetNumber", "city", "postalCode"]
+            }
+        },
+        "additionalProperties" : false,
+        "required" : ["mail"]
+     }
+    reqLogin: {
+      "x-$schema": "http://json-schema.org/draft-04/schema#",
+      "title" : "Bluquist login request",
+      "description" : "Bluquist login request",
+      "type" : "object",
+      "properties" : {
+          "mail" : {
+              "type" : "string",
+              "format" : "email"
+          },
+          "password" : {
+              "type" : "string",
+              "minLength" : 1
+          }
+      },
+      "additionalProperties" : false,
+      "required" : ["mail", "password"]
+     }
+
+    respLogin: {
+      "allOf" : [
+          { "$ref" : "#/components/schemas/baseResponse" },
+          {
+              "type" : "object",
+              "properties" : {
+                "payload" : {
+                  "type" : "object",
+                  "properties" : {
+                    "token" : { "type" : "string" }
+                  }
+                }
+              }
+            }
+        ]
+      }
+
+    reqRegister: {
+      "x-$schema": "http://json-schema.org/draft-04/schema#",
+      "title" : "Bluquist registration request",
+      "description" : "Bluquist registration request",
+      "type" : "object",
+      "properties" : {
+          "firstName" : {
+              "type" : "string",
+              "minLength" : 1
+          },
+          "lastName" : {
+              "type" : "string",
+              "minLength" : 1
+          },
+          "mail" : {
+              "type" : "string",
+              "format" : "email"
+          },
+          "password" : {
+              "type" : "string",
+              "minLength" : 1
+          },
+          "address" : {
+              "type" : "object",
+              "properties" : {
+                  "country" : {
+                      "type" : "string",
+                      "minLength" : 1
+                  },
+                  "state" : {
+                      "type" : "string",
+                      "minLength" : 1
+                  },
+                  "street" : {
+                      "type" : "string",
+                      "minLength" : 1
+                  },
+                  "streetNumber" : {
+                      "type" : "string",
+                      "minLength" : 1
+                  },
+                  "city" : {
+                      "type" : "string",
+                      "minLength" : 1
+                  },
+                  "postalCode" : {
+                      "type" : "string",
+                      "minLength" : 1
+                  }
+              },
+              "additionalProperties" : false,
+              "required" : ["country", "street", "streetNumber", "city", "postalCode"]
+          },
+          "role" : {
+              "type" : "string",
+              "enum" : ["user", "garage_owner", "admin"]
+          }
+      },
+      "additionalProperties" : false,
+      "required" : ["mail", "password"]
+     }
+
+    reqUserUpdate: {
+      "x-$schema": "http://json-schema.org/draft-04/schema#",
+      "title" : "Bluquist user data update request",
+      "description" : "Bluquist user data update request",
+      "type" : "object",
+      "properties" : {
+          "firstName" : {
+              "type" : "string",
+              "minLength" : 1
+          },
+          "lastName" : {
+              "type" : "string",
+              "minLength" : 1
+          },
+          "password" : {
+              "type" : "string",
+              "minLength" : 1
+          },
+          "address" : {
+              "type" : "object",
+              "properties" : {
+                  "country" : {
+                      "type" : "string",
+                      "minLength" : 1
+                  },
+                  "state" : {
+                      "type" : "string",
+                      "minLength" : 1
+                  },
+                  "street" : {
+                      "type" : "string",
+                      "minLength" : 1
+                  },
+                  "streetNumber" : {
+                      "type" : "string",
+                      "minLength" : 1
+                  },
+                  "city" : {
+                      "type" : "string",
+                      "minLength" : 1
+                  },
+                  "postalCode" : {
+                      "type" : "string",
+                      "minLength" : 1
+                  }
+              },
+              "additionalProperties" : false,
+              "required" : ["country", "street", "streetNumber", "city", "postalCode"]
+          },
+          "role" : {
+              "type" : "string",
+              "enum" : ["user", "garage_owner", "admin"]
+          }
+      },
+      "additionalProperties" : false
+     }
+
+    respStatic: {
+      "allOf" : [
+          { "$ref" : "#/components/schemas/baseResponse" },
+          {
+              "type" : "object",
+              "properties" : {
+                "payload" : {
+                  "type" : "object",
+                  "properties" : {
+                    "apiVersion" : { "type" : "string" },
+                    "environment" : { "type" : "string" },
+                    "serverTime" : { "type" : "number" }
+                  }
+                }
+              }
+            }
+        ]
+      }
+
+    baseResponse: {
+      "type" : "object",
+      "properties" : {}
+      }
+
+    errorResponse: {
+      "allOf" : [
+          { "$ref" : "#/components/schemas/baseResponse" },
+          {
+              "type" : "object",
+              "properties" : {
+                "error" : {
+                  "type" : "object",
+                  "properties" : {
+                    "errorCode" : { "type" : "integer" },
+                    "errorMessage" : { "type" : "string" }
+                  }
+                }
+              }
+            }
+        ]
+      }
+
+    successResponse: {
+      "allOf" : [
+          { "$ref" : "#/components/schemas/baseResponse" },
+          {
+              "type" : "object",
+              "properties" : {
+                "success" : {
+                  "type" : "boolean"
+                }
+              }
+            }
+        ]
+      }

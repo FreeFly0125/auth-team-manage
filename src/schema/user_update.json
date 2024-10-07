@@ -1,0 +1,25 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title" : "User data update request",
+    "description" : "User data update request",
+    "type" : "object",
+    "properties" : {
+        "firstName" : {
+            "type" : "string",
+            "minLength" : 1
+        },
+        "lastName" : {
+            "type" : "string",
+            "minLength" : 1
+        },
+        "password" : {
+            "type" : "string",
+            "minLength" : 1
+        },
+        "role" : {
+            "type" : "string",
+            "enum" : ["user", "admin"]
+        }
+    },
+    "additionalProperties" : false
+}

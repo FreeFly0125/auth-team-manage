@@ -1,0 +1,8 @@
+flask
+flask-cors
+jsonschema
+redis
+mongoengine
+flask-mongoengine
+requests
+pymongo

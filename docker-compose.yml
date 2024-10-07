@@ -1,0 +1,28 @@
+version: "2"
+services:
+  mongo:
+    image: mongo:3.6
+    volumes:
+      - database:/data/db
+    ports:
+      - 27017:27017
+
+  redis:
+    image: redis:4.0
+    ports:
+      - 6379:6379
+
+  bluquist:
+    image: bluquist/service
+    build:
+      context: "."
+    env_file: ./config.env
+    links:
+      - mongo
+      - redis
+    ports:
+      - 80:80
+
+volumes:
+  database:
+    driver: local
