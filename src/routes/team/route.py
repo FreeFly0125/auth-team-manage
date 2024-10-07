@@ -2,6 +2,7 @@ from flask import Blueprint, g
 from model.Team import Team, TeamMember
 from util import response, validate
 from controller import user as user_controller
+from controller import team as team_controller
 from error import APIException
 
 
@@ -32,6 +33,25 @@ def register_team():
         return response(success=True)
     else:
         raise TeamNameInvalidError()
+    
+@team.route("/rename", methods=["POST"])
+@validate("team_rename")
+def rename_team():
+    if _check_team_available(g.payload["name"]):
+        t = team_controller.get_team_with_id(g.payload["id"])
+        t.name = g.payload["name"]
+        t.save()
+        return response(success=True)
+    else:
+        raise TeamNameInvalidError()
+
+
+@team.route("/delete", methods=["DELETE"])
+@validate("team_delete")
+def delete_team():
+    t = team_controller.get_team_with_id(g.payload["id"])
+    t.delete()
+    return response(success=True)
 
 
 def _check_team_available(name):
@@ -39,4 +59,4 @@ def _check_team_available(name):
 
 class TeamNameInvalidError(APIException):
     def __init__(self):
-        super(TeamNameInvalidError, self).__init__(status_code=400, error_code=1201, message="Team name is already registered.")
+        super(TeamNameInvalidError, self).__init__(status_code=409, error_code=1204, message="The team name is already registered in the system.")
