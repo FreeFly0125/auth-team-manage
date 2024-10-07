@@ -11,6 +11,7 @@ team = Blueprint("team", __name__)
 
 
 def verify_team_access(f):
+    # Verify the access to team data
     @wraps(f)
     def wrapper(*args, **kw):
         try:
@@ -29,6 +30,7 @@ def get_team_info():
     team_id = request.args.get('team_id')
 
     if team_id:
+        # if there's particular team id, returns the corresponding team data
         try:
             t = team_controller.get_team_with_id(team_id)
         except Team.DoesNotExist:
@@ -41,6 +43,7 @@ def get_team_info():
         t = team_controller.get_team_with_id(team_id)
         return response(payload=t)
     else:
+        # if there's no particular team id, returns the whole team data that the logged user is in
         teams = team_controller.get_teams_for_user(str(g.session["userID"]))
         return response(payload=teams)
 
@@ -49,6 +52,7 @@ def get_team_info():
 @validate("team_registeration")
 def register_team():
     if _check_team_available(g.payload["name"]):
+        # check if the team name is creatable
         t = Team()
         t.name = g.payload["name"]
         t.admin = [str(g.session["userID"])]
@@ -72,6 +76,7 @@ def register_team():
 @verify_team_access
 def rename_team():
     if _check_team_available(g.payload["name"]):
+        # check if the team name is creatable
         t = team_controller.get_team_with_id(g.payload["teamID"])
         t.name = g.payload["name"]
         t.save()
