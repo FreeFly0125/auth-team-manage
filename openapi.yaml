@@ -14,15 +14,18 @@ info:
     | 400 | 1003 | JSON body is malformed |
     | 400 | 1005 | Bad parameter |
     | 400 | 1006 | Invalid header |
+    | 400 | 1201 | Password must be at least 5 characters in length |
     | 401 | 1101 | Authorization header is missing |
     | 403 | 1102 | The session has expired |
     | 403 | 1103 | Invalid session token |
     | 403 | 1104 | Client origin violation |
     | 403 | 1105 | The access to this function is not allowed for the logged in user |
     | 403 | 1106 | The provided authorization header is not valid |
+    | 403 | 1203 | Userame and password do not match any account |
     | 404 | 1001 | The ressource was not found |
     | 404 | 1007 | No such endpoint |
     | 405 | 1004 | The HTTP method is not allowed on this route |
+    | 409 | 1202 | The e-mail is already registered in the system |
 
   version: '1'
 
