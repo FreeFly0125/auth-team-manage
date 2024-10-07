@@ -4,11 +4,11 @@
     "description" : "Create a new team",
     "type" : "object",
     "properties" : {
-        "id" : {
+        "teamID" : {
             "type": "string",
             "minLength": 1
         }
     },
     "additionalProperties" : false,
-    "required" : ["id"]
+    "required" : ["teamID"]
 }

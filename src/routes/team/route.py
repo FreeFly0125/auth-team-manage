@@ -4,9 +4,25 @@ from util import response, validate
 from controller import user as user_controller
 from controller import team as team_controller
 from error import APIException
+from functools import wraps
 
 
 team = Blueprint("team", __name__)
+
+
+def verify_team_access(f):
+    @wraps(f)
+    def wrapper(*args, **kw):
+        try:
+            t = team_controller.get_team_with_id(g.payload["teamID"])
+        except Team.DoesNotExist:
+            raise TeamNotExistError()
+        # if the logged in user is super user with UserRole.Admin, it would be able to access all teams
+        # to avoid confussion, used UserRole.APP as super user role
+        if g.session["userRole"] != "appadmin" and str(g.session["userID"]) not in t.admin:
+            raise AccessDeniedError()
+        return f(*args, **kw)
+    return wrapper
 
 @team.route("/info", methods=["Get"])
 def get_team_info():
@@ -53,9 +69,10 @@ def register_team():
     
 @team.route("/rename", methods=["POST"])
 @validate("team_rename")
+@verify_team_access
 def rename_team():
     if _check_team_available(g.payload["name"]):
-        t = team_controller.get_team_with_id(g.payload["id"])
+        t = team_controller.get_team_with_id(g.payload["teamID"])
         t.name = g.payload["name"]
         t.save()
         return response(success=True)
@@ -65,14 +82,16 @@ def rename_team():
 
 @team.route("/delete", methods=["DELETE"])
 @validate("team_delete")
+@verify_team_access
 def delete_team():
-    t = team_controller.get_team_with_id(g.payload["id"])
+    t = team_controller.get_team_with_id(g.payload["teamID"])
     t.delete()
     return response(success=True)
 
 
 @team.route("/members", methods=["POST"])
 @validate("modify_members")
+@verify_team_access
 def add_team_member():
     if team_controller.is_user_team_member(g.payload["teamID"], g.payload["userID"]):
         raise UserExistInTeamError()
@@ -92,6 +111,7 @@ def add_team_member():
 
 @team.route("/members", methods=["DELETE"])
 @validate("modify_members")
+@verify_team_access
 def delete_team_member():
     if not team_controller.is_user_team_member(g.payload["teamID"], g.payload["userID"]):
         raise UserNotExistError()
@@ -101,6 +121,7 @@ def delete_team_member():
 
 @team.route("/change_role", methods=["PATCH"])
 @validate("change_user_role")
+@verify_team_access
 def change_user_role():
     if not team_controller.is_user_team_member(g.payload["teamID"], g.payload["userID"]):
         raise UserNotExistError()
