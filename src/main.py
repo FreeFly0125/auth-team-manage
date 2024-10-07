@@ -21,10 +21,12 @@ import auth
 import util
 import routes.static.route
 import routes.user.route
+import routes.team.route
 
 # Register API routes
 app.register_blueprint(routes.static.route.static, url_prefix=BASE_ROUTE + "/static")
 app.register_blueprint(routes.user.route.user, url_prefix=BASE_ROUTE + "/user")
+app.register_blueprint(routes.team.route.team, url_prefix=BASE_ROUTE + "/team")
 
 # Global request handlers
 @app.errorhandler(APIException)

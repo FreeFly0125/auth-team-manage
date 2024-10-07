@@ -8,6 +8,7 @@ from database import db
 class UserRole:
     USER = "user"
     ADMIN = "admin"
+    APP = "appadmin"
 
 
 class User(db.Document):
