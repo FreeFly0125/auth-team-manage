@@ -38,15 +38,12 @@ def register_team():
         t.admin = [str(g.session["userID"])]
 
         u = user_controller.get_user_by_id(id=g.session["userID"])
-        u.role = "admin"
-        u.save()
-
         m = TeamMember()
         m.user_id = str(g.session["userID"])
         m.first_name = u.first_name
         m.last_name = u.last_name
         m.mail = u.mail
-        m.role = u.role
+        m.role = "admin"
 
         t.members = [m]
         t.save()
