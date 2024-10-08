@@ -10,8 +10,8 @@ BASE_ROUTE = "/bluquist/v" + config.VERSION
 app = Flask(__name__)
 CORS(app)
 app.config["MONGODB_SETTINGS"] = {
-    "db" : "bluquist_" + config.ENVIRONMENT,
-    "host" : config.MONGO
+    "db": "bluquist_" + config.ENVIRONMENT,
+    "host": config.MONGO,
 }
 db.init_app(app)
 
@@ -28,32 +28,46 @@ app.register_blueprint(routes.static.route.static, url_prefix=BASE_ROUTE + "/sta
 app.register_blueprint(routes.user.route.user, url_prefix=BASE_ROUTE + "/user")
 app.register_blueprint(routes.team.route.team, url_prefix=BASE_ROUTE + "/team")
 
+
 # Global request handlers
 @app.errorhandler(APIException)
 def handle_error(error):
     """Catches exceptions and builds a corresponding error response"""
     return error.getResponse()
 
+
 @app.errorhandler(404)
 def handle_404(error):
     return NotFoundError().getResponse()
+
 
 @app.errorhandler(405)
 def handle_405(error):
     return MethodNotAllowedError().getResponse()
 
+
 @app.errorhandler(500)
 def handle_500(error):
-    return util.response(status_code=500, error_code=-1, error_message="The service encountered an unforeseen server error.")
+    return util.response(
+        status_code=500,
+        error_code=-1,
+        error_message="The service encountered an unforeseen server error.",
+    )
+
 
 @app.before_request
 def handle_authentication():
     """Handles authentication for every non-public API request"""
     if request.endpoint is None:
-        return util.response(status_code=404, error_code=1007, error_message="No such endpoint")
+        return util.response(
+            status_code=404, error_code=1007, error_message="No such endpoint"
+        )
     if not getattr(app.view_functions[request.endpoint], "is_public", False):
-        access_limit = getattr(app.view_functions[request.endpoint], "access_limit", None)
+        access_limit = getattr(
+            app.view_functions[request.endpoint], "access_limit", None
+        )
         auth.authenticate(access_limit)
+
 
 @app.after_request
 def save_session_state(r):
@@ -61,5 +75,6 @@ def save_session_state(r):
     auth.save_session()
     return r
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

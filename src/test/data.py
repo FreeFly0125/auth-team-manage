@@ -5,16 +5,17 @@ Running this module will create some database entries for testing purposes.
 
 import sys
 import os
-PACKAGE_PARENT = '..'
-SCRIPT_DIR = os.path.dirname(os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__))))
+
+PACKAGE_PARENT = ".."
+SCRIPT_DIR = os.path.dirname(
+    os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__)))
+)
 sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
 
 import time
-from datetime import datetime, timedelta
 import random
 from pymongo import MongoClient
 from flask import Flask
-import requests
 
 import config
 import database
@@ -22,11 +23,11 @@ from model.User import User, UserRole
 from routes.user.route import _hash
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app = Flask(__name__)
     app.config["MONGODB_SETTINGS"] = {
-        "db" : "bluquist_" + config.ENVIRONMENT,
-        "host" : config.MONGO
+        "db": "bluquist_" + config.ENVIRONMENT,
+        "host": config.MONGO,
     }
     database.db.init_app(app)
 

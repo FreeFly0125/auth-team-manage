@@ -11,14 +11,16 @@ import time
 
 static = Blueprint("static", __name__)
 
+
 @static.route("/info", methods=["GET"])
 def get_info():
     payload = {
-        "apiVersion" : config.VERSION,
+        "apiVersion": config.VERSION,
         "environment": config.ENVIRONMENT,
-        "serverTime" : time.time()
+        "serverTime": time.time(),
     }
     return response(payload=payload)
+
 
 @static.route("/ping", methods=["GET"])
 @noauth

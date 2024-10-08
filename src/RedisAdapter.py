@@ -2,8 +2,10 @@ import redis
 import pickle
 import config
 
+
 class RedisAdapter(object):
     """Creates and maintains a connection to the redis database"""
+
     def __init__(self, database):
         redis_address = config.REDIS.split(":")
         redis_host = redis_address[0]
